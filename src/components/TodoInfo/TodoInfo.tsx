@@ -1,5 +1,5 @@
 import cn from 'classnames';
-import { TodoElement } from '../../App';
+import { TodoElement } from '../Type/type';
 
 type Props = {
   todo: TodoElement;

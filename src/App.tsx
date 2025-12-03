@@ -3,30 +3,28 @@ import React, { useState } from 'react';
 import { TodoList } from './components/TodoList';
 import usersFromServer from './api/users';
 import todosFromServer from './api/todos';
-
-export type User = {
-  name: string;
-  id: number;
-  username: string;
-  email: string;
-};
-
-export type TodoElement = {
-  id: number;
-  title: string;
-  userId: number;
-  completed: boolean;
-  user: User;
-};
+import { User, TodoElement } from './components/Type/type';
 
 function getUserById(users: User[], userId: number): User | undefined {
   return users.find(user => user.id === userId);
 }
 
-export const initialTodos = todosFromServer.map(todo => ({
-  ...todo,
+/* export const initialTodos = todosFromServer.map(todo => ({
+ ...todo,
   user: getUserById(usersFromServer, todo.userId),
-}));
+ }));
+*/
+export const initialTodos = todosFromServer
+  .map(todo => {
+    const user = getUserById(usersFromServer, todo.userId);
+
+    if (!user) {
+      return null;
+    }
+
+    return { ...todo, user };
+  })
+  .filter((todo): todo is TodoElement => todo !== null);
 
 export const App = () => {
   const [title, setTitle] = useState('');
@@ -105,7 +103,7 @@ export const App = () => {
   return (
     <div className="App">
       <h1>Add todo form</h1>
-      <form action="/api/todos" method="POST" onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit}>
         <div className="field">
           <label htmlFor="titleInput"> Title: </label>
           <input
@@ -115,7 +113,7 @@ export const App = () => {
             onChange={handleTitleChange}
             placeholder="Enter a title"
           />
-          {titleError && <span className="error">Please enter a title</span>}
+          {titleError && <span className="error">{titleError}</span>}
         </div>
 
         <div className="field">
@@ -126,16 +124,14 @@ export const App = () => {
             value={selectedUserId}
             onChange={handleUserChange}
           >
-            <option value="">
-              Choose a user
-            </option>
+            <option value="">Choose a user</option>
             {usersFromServer.map(user => (
               <option value={user.id} key={user.id}>
                 {user.name}
               </option>
             ))}
           </select>
-          {userError && <span className="error">Please choose a user</span>}
+          {userError && <span className="error">{userError}</span>}
         </div>
 
         <button type="submit" data-cy="submitButton">

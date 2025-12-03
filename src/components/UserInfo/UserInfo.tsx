@@ -1,4 +1,5 @@
-import { User } from '../../App';
+import { User } from '../Type/type';
+
 type Props = {
   user: User;
 };
